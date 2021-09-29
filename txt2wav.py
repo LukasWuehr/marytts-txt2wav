@@ -18,14 +18,18 @@ i_divider: str
 def main():
     GENDERDIVIDE = [r'\*', r':', r'_', r'\-', r'/', r'·', r'\.', r'°', r'\'', r'\|']
     GENDERI = ['I', '!', 'ï']
+    #TODO: Regex for special gendering
     # Student(innen)
     # Student(inn)en
-    GENDERSYMBOL = ':'
+
+    GENDERSYMBOL = ' '
     global divider, i_divider
     parser = argparse.ArgumentParser(description='Read gendered text out loud')
     parser.add_argument("gender_type", help="Gender", choices=['gendered', 'male', 'female'])
     parser.add_argument('text')
     parser.add_argument('-g', nargs='+')
+    parser.add_argument('host', nargs='?')
+    parser.add_argument('port', nargs='?')
 
     args = parser.parse_args()
     if args.g:
@@ -36,28 +40,29 @@ def main():
 
     def transform_gender(text):
         global divider, i_divider
-        divider = r'(?<=[a-zäöüß])(' + divider + r')(?=(in|innen|r|n)(?![a-zäöüß]*))'
-        i_divider = r'(?<=[a-zäöüß])(' + i_divider + r')(?=(n|nnen)(?![a-zäöüß]*))'
+        divider = r'(?<=[a-zäöüß])(' + divider + r')(?=(in|innen|r|n)(?![a-zäöüß]))'
+        i_divider = r'(?<=[a-zäöüß])(' + i_divider + r')(?=(n|nnen)(?![a-zäöüß]))'
         text = re.sub(divider, GENDERSYMBOL, text)
         text = re.sub(i_divider, GENDERSYMBOL + r'i', text)
         return text
 
     def transform_male(text):
         global divider, i_divider
-        divider = r'(?<=[a-zäöüß])(' + divider + r')(in|innen)(?![a-zäöüß]*)'
+        divider1 = r'(?<=[a-zäöüß])(' + divider + r')(in|innen)(?![a-zäöüß])'
         nr = r'(?<=[a-zäöüß])(' + divider + r')(?=(r|n)(?![a-zäöüß]))'
-        i_divider = r'(?<=[a-zäöüß])(' + i_divider + r')(n|nnen)(?![a-zäöüß]*)'
-        text = re.sub(divider, '', text)
+        i_divider = r'(?<=[a-zäöüß])(' + i_divider + r')(n|nnen)(?![a-zäöüß])'
+        text = re.sub(nr, '', text)
+        text = re.sub(divider1, '', text)
         text = re.sub(i_divider, '', text)
-        text = re.sub(nr,'',text)
+
         return text
 
     def transform_female(text):
         global divider, i_divider
-        divider = r'(?<=[a-zäöüß])(' + divider + r')(?=(in|innen)(?![a-zäöüß]*))'
-        nr = r'(?<=[a-zäöüß])(' + divider + r')(r|n)(?![a-zäöüß]*)'
-        i_divider = r'(?<=[a-zäöüß])(' + i_divider + r')(n|nnen)(?![a-zäöüß]*)'
-        text = re.sub(divider, '', text)
+        divider1 = r'(?<=[a-zäöüß])(' + divider + r')(?=(in|innen)(?![a-zäöüß]))'
+        nr = r'(?<=[a-zäöüß])(' + divider + r')(r|n)(?![a-zäöüß])'
+        i_divider = r'(?<=[a-zäöüß])(' + i_divider + r')(n|nnen)(?![a-zäöüß])'
+        text = re.sub(divider1, '', text)
         text = re.sub(i_divider, '', text)
         text = re.sub(nr, '', text)
         return text
@@ -71,17 +76,23 @@ def main():
     else:
         input_text = "Mary python client test"
 
-    print(input_text)
+    print("Transformierter Text: ",input_text)
 
     # Mary server informations
-    mary_host = "localhost"
-    mary_port = "59125"
+    if args.host:
+        mary_host = args.host
+    else:
+        mary_host = "localhost"
+    if args.port:
+        mary_port = args.port
+    else:
+        mary_port = "59125"
 
     # Build the query
     query_hash = {"INPUT_TEXT": input_text,
                   "INPUT_TYPE": "TEXT",  # Input text
                   "LOCALE": "de",
-                  "VOICE": "bits3-hsmm",  # Voice informations  (need to be compatible)
+                  "VOICE": "dfki-pavoque-styles",  # Voice informations  (need to be compatible)
                   "OUTPUT_TYPE": "AUDIO",
                   "AUDIO": "WAVE",  # Audio informations (need both)
                   }
@@ -112,3 +123,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+"Damit es für jede:n Einwohner:in Jenas und des näheren Umlands möglich ist, dass es nicht zu Konflikten zwischen Radfahrer:innen und Fußgänger:innen kommt. Anwohner:innen-Kfz-Verkehr. Kampagnen an Schulen sollten sich gezielt an Lehrer:innen, Schüler:innen und Eltern richten. Jede:r Schüler:in sollte die Möglichkeit haben,"
