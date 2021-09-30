@@ -26,14 +26,14 @@ def main():
     global divider, i_divider
     parser = argparse.ArgumentParser(description='Read gendered text out loud')
     parser.add_argument("gender_type", help="Gender", choices=['gendered', 'male', 'female'])
-    parser.add_argument('text')
-    parser.add_argument('-g', nargs='+')
-    parser.add_argument('host', nargs='?')
-    parser.add_argument('port', nargs='?')
+    parser.add_argument('text', help='text to read')
+    parser.add_argument('-g', nargs='+', help='additional gender symbols')
+    parser.add_argument('host', nargs='?', help='maryTTS Server address')
+    parser.add_argument('port', nargs='?', help='maryTTS Server port')
 
     args = parser.parse_args()
     if args.g:
-        GENDERDIVIDE.append(args.g)
+        GENDERDIVIDE.extend(args.g)
     GENDERDIVIDE.extend(GENDERI)
     divider = r'|'.join(GENDERDIVIDE)
     i_divider = r'|'.join(GENDERI)
